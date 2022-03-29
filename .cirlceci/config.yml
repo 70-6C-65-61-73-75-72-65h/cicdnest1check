@@ -1,0 +1,27 @@
+version: 2.1
+orbs:
+  node: circleci/node@5.0.1
+jobs:
+  build-and-test:
+    executor:
+      name: node/default
+      tag: '13.14'
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          command: npm run test
+
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-test
+  matrix-tests:
+    jobs:
+      - node/test:
+          matrix:
+            parameters:
+              version:
+                - 13.11.0
+                - 12.16.0
+                - 10.19.0
