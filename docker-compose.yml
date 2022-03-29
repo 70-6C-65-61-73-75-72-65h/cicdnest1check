@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  nest-api:
+    container_name: nest-api
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/ci_check
+      - /usr/src/ci_check/node_modules
+    ports:
+      - ${APP_PORT}:${APP_CONTAINER_PORT}
+      - 9229:9229
+      - 5555:5555
+    command: ${PROJ_START_COMMAND}
+    env_file:
+      - .env
+    networks:
+      - webnet
+    depends_on:
+      - postgres
+  postgres:
+    container_name: postgres
+    image: postgres:12
+    restart: always
+    networks:
+      - webnet
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_DB: ${DATABASE_NAME}
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_CONTAINER_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+networks:
+  webnet:
+volumes:
+  pgdata:
+    name: nest-ci-check-db
